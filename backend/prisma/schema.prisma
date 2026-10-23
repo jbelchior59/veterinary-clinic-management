@@ -1,0 +1,594 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  nome      String?
+  email     String   @unique
+  password  String
+  role      String   @default("TUTOR")
+  createdAt DateTime @default(now())
+
+  consultasRealizadas     Consulta[]               @relation("ConsultasVeterinario")
+  marcacoesCriadas        Marcacao[]               @relation("MarcacoesCriadas")
+  examesSolicitados       Exame[]                  @relation("ExamesSolicitados")
+  amostrasRegistadas      Amostra[]                @relation("AmostrasRegistadas")
+  resultadosInseridos     Resultado[]              @relation("ResultadosInseridos")
+  resultadosValidados     Resultado[]              @relation("ResultadosValidados")
+  relatoriosEmitidos      Relatorio[]              @relation("RelatoriosEmitidos")
+  internamentosCriados    Internamento[]           @relation("InternamentosCriados")
+  observacoesInternamento InternamentoObservacao[] @relation("ObservacoesInternamento")
+  notasLaboratorio        ExameNotaInterna[]       @relation("NotasLaboratorio")
+  anexosLaboratorio       ExameAnexo[]             @relation("AnexosLaboratorio")
+  auditoriaExames         ExameAuditLog[]          @relation("AuditoriaExames")
+  consumosLaboratorio     LabConsumo[]             @relation("ConsumosLaboratorio")
+  notasRapidas            NotaRapida[]             @relation("NotasRapidas")
+  comunicacoesCriadas     Comunicacao[]            @relation("ComunicacoesCriadas")
+  faturasCriadas          Fatura[]                 @relation("FaturasCriadas")
+  pagamentosRegistados    Pagamento[]              @relation("PagamentosRegistados")
+  horariosProfissionais   HorarioProfissional[]    @relation("HorarioProfissionalUser")
+  horariosProfissionaisCriados HorarioProfissional[] @relation("HorariosProfissionaisCriados")
+  auditLogs               AuditLog[]               @relation("AuditLogs")
+  vacinasAplicadas        Vacina[]                 @relation("VacinasAplicadas")
+  stockMovimentos         StockMovimento[]         @relation("StockMovimentos")
+  marcacoesProfissional Marcacao[] @relation("MarcacoesProfissional")
+}
+
+model Dono {
+  id       Int     @id @default(autoincrement())
+  nome     String
+  email    String  @unique
+  telefone String?
+  morada   String?
+
+  animais Animal[] @relation("DonoAnimais")
+}
+
+model Animal {
+  id             Int       @id @default(autoincrement())
+  nome           String
+  especie        String
+  raca           String?
+  genero         String?
+  dataNascimento DateTime?
+  peso           Float?
+
+  alergias        String?
+  alertasClinicos String?
+
+  donoId Int
+  dono   Dono @relation("DonoAnimais", fields: [donoId], references: [id])
+
+  consultas     Consulta[]
+  marcacoes     Marcacao[]
+  exames        Exame[]
+  internamentos Internamento[]
+  notasRapidas  NotaRapida[]
+  comunicacoes  Comunicacao[]
+  faturas       Fatura[]
+  vacinas       Vacina[]
+
+  createdAt DateTime @default(now())
+
+  @@index([donoId])
+}
+
+model Consulta {
+  id          Int      @id @default(autoincrement())
+  data        DateTime
+  observacoes String
+  diagnostico String
+
+  pesoRegistado Float?
+
+  veterinarioId Int?
+  veterinario   User? @relation("ConsultasVeterinario", fields: [veterinarioId], references: [id])
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  tratamentos Tratamento[]
+
+  createdAt DateTime @default(now())
+
+  @@index([animalId, data])
+}
+
+model Tratamento {
+  id         Int       @id @default(autoincrement())
+  descricao  String
+  medicacao  String?
+  dataInicio DateTime?
+  dataFim    DateTime?
+
+  consultaId Int
+  consulta   Consulta @relation(fields: [consultaId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([consultaId])
+}
+
+model Marcacao {
+  id     Int      @id @default(autoincrement())
+  data   DateTime
+  motivo String?
+  estado String   @default("AGENDADA")
+
+  criadoPorId Int?
+  criadoPor   User? @relation("MarcacoesCriadas", fields: [criadoPorId], references: [id])
+
+  profissionalId Int?
+  profissional   User? @relation("MarcacoesProfissional", fields: [profissionalId], references: [id])
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([animalId, data])
+  @@index([estado])
+}
+
+model Laboratorio {
+  id            Int     @id @default(autoincrement())
+  nome          String  @unique
+  tipo          String  @default("INTERNO")
+  especialidade String?
+  contacto      String?
+
+  exames Exame[]
+
+  createdAt DateTime @default(now())
+}
+
+model Exame {
+  id               Int       @id @default(autoincrement())
+  tipo             String
+  estado           String    @default("PENDENTE")
+  descricaoClinica String?
+  prioridade       String    @default("NORMAL")
+  dataPedido       DateTime  @default(now())
+  dataConclusao    DateTime?
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  solicitanteId Int?
+  solicitante   User? @relation("ExamesSolicitados", fields: [solicitanteId], references: [id])
+
+  laboratorioId Int?
+  laboratorio   Laboratorio? @relation(fields: [laboratorioId], references: [id])
+
+  amostras   Amostra[]
+  resultados Resultado[]
+  relatorio  Relatorio?
+  notasInternas ExameNotaInterna[]
+  anexos     ExameAnexo[]
+  auditoria  ExameAuditLog[]
+  consumos   LabConsumo[]
+
+  createdAt DateTime @default(now())
+
+  @@index([animalId])
+  @@index([estado])
+  @@index([solicitanteId])
+  @@index([laboratorioId])
+}
+
+model Amostra {
+  id           Int      @id @default(autoincrement())
+  codigo       String   @unique
+  tipo         String
+  origem       String   @default("INTERNA")
+  estado       String   @default("RECEBIDA")
+  motivoRejeicao String?
+  temperatura String?
+  localizacaoArmazenamento String?
+  observacoes  String?
+  dataColheita DateTime @default(now())
+  dataRececao  DateTime @default(now())
+  processadaEm DateTime?
+
+  exameId Int
+  exame   Exame @relation(fields: [exameId], references: [id])
+
+  registadaPorId Int?
+  registadaPor   User? @relation("AmostrasRegistadas", fields: [registadaPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([exameId])
+}
+
+model Resultado {
+  id            Int       @id @default(autoincrement())
+  parametro     String?
+  valor         String?
+  unidade       String?
+  referencia    String?
+  interpretacao String?
+  dados         String
+  observacoes   String?
+  validado      Boolean   @default(false)
+  dataResultado DateTime  @default(now())
+  dataValidacao DateTime?
+
+  exameId Int
+  exame   Exame @relation(fields: [exameId], references: [id])
+
+  relatorioId Int?
+  relatorio   Relatorio? @relation(fields: [relatorioId], references: [id])
+
+  inseridoPorId Int?
+  inseridoPor   User? @relation("ResultadosInseridos", fields: [inseridoPorId], references: [id])
+
+  validadoPorId Int?
+  validadoPor   User? @relation("ResultadosValidados", fields: [validadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([exameId])
+  @@index([validado])
+}
+
+model ExameNotaInterna {
+  id        Int      @id @default(autoincrement())
+  exameId   Int
+  exame     Exame    @relation(fields: [exameId], references: [id])
+  autorId   Int?
+  autor     User?    @relation("NotasLaboratorio", fields: [autorId], references: [id])
+  conteudo  String
+  createdAt DateTime @default(now())
+
+  @@index([exameId])
+  @@index([autorId])
+}
+
+model ExameAnexo {
+  id        Int      @id @default(autoincrement())
+  exameId   Int
+  exame     Exame    @relation(fields: [exameId], references: [id])
+  autorId   Int?
+  autor     User?    @relation("AnexosLaboratorio", fields: [autorId], references: [id])
+  nome      String
+  url       String
+  tipo      String?
+  createdAt DateTime @default(now())
+
+  @@index([exameId])
+  @@index([autorId])
+}
+
+model ExameAuditLog {
+  id        Int      @id @default(autoincrement())
+  exameId   Int
+  exame     Exame    @relation(fields: [exameId], references: [id])
+  atorId    Int?
+  ator      User?    @relation("AuditoriaExames", fields: [atorId], references: [id])
+  acao      String
+  de        String?
+  para      String?
+  detalhe   String?
+  createdAt DateTime @default(now())
+
+  @@index([exameId])
+  @@index([atorId])
+  @@index([acao])
+}
+
+model LabConsumo {
+  id        Int      @id @default(autoincrement())
+  exameId   Int
+  exame     Exame    @relation(fields: [exameId], references: [id])
+  registadoPorId Int?
+  registadoPor User? @relation("ConsumosLaboratorio", fields: [registadoPorId], references: [id])
+  stockItemId Int?
+  stockItem   StockItem? @relation(fields: [stockItemId], references: [id])
+  item      String
+  quantidade Float
+  unidade   String
+  lote      String?
+  createdAt DateTime @default(now())
+
+  @@index([exameId])
+  @@index([registadoPorId])
+  @@index([stockItemId])
+}
+
+model Relatorio {
+  id            Int      @id @default(autoincrement())
+  conclusao     String
+  observacoes   String?
+  recomendacoes String?
+  dataEmissao   DateTime @default(now())
+
+  exameId Int   @unique
+  exame   Exame @relation(fields: [exameId], references: [id])
+
+  emitidoPorId Int?
+  emitidoPor   User? @relation("RelatoriosEmitidos", fields: [emitidoPorId], references: [id])
+
+  resultados Resultado[]
+
+  createdAt DateTime @default(now())
+}
+
+model Internamento {
+  id          Int       @id @default(autoincrement())
+  dataEntrada DateTime  @default(now())
+  dataAlta    DateTime?
+  motivo      String
+  observacoes String?
+  estado      String    @default("ATIVO")
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  veterinarioId Int?
+  veterinario   User? @relation("InternamentosCriados", fields: [veterinarioId], references: [id])
+
+  observacoesInternamento InternamentoObservacao[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([animalId])
+  @@index([estado])
+  @@index([veterinarioId])
+}
+
+model NotaRapida {
+  id        Int      @id @default(autoincrement())
+  texto     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  autorId Int?
+  autor   User? @relation("NotasRapidas", fields: [autorId], references: [id])
+
+  @@index([animalId])
+  @@index([autorId])
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  acao      String
+  entidade  String
+  entidadeId Int?
+  detalhes  String?
+  createdAt DateTime @default(now())
+
+  userId Int?
+  user   User? @relation("AuditLogs", fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entidade])
+}
+
+model Comunicacao {
+  id        Int      @id @default(autoincrement())
+  tipo      String
+  canal     String
+  assunto   String?
+  mensagem  String
+  estado    String   @default("REGISTADA")
+  data      DateTime @default(now())
+
+  animalId Int?
+  animal   Animal? @relation(fields: [animalId], references: [id])
+
+  criadoPorId Int?
+  criadoPor   User? @relation("ComunicacoesCriadas", fields: [criadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([animalId])
+  @@index([criadoPorId])
+  @@index([tipo])
+}
+
+model Fatura {
+  id             Int      @id @default(autoincrement())
+  numero         String   @unique
+  descricao      String?
+  valor          Float
+  estado         String   @default("PENDENTE")
+  dataEmissao    DateTime @default(now())
+  dataVencimento DateTime?
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  criadaPorId Int?
+  criadaPor   User? @relation("FaturasCriadas", fields: [criadaPorId], references: [id])
+
+  pagamentos Pagamento[]
+  linhas     FaturaLinha[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([animalId])
+  @@index([estado])
+  @@index([dataVencimento])
+}
+
+model Pagamento {
+  id            Int      @id @default(autoincrement())
+  valor         Float
+  metodo        String
+  referencia    String?
+  dataPagamento DateTime @default(now())
+
+  faturaId Int
+  fatura   Fatura @relation(fields: [faturaId], references: [id])
+
+  registadoPorId Int?
+  registadoPor   User? @relation("PagamentosRegistados", fields: [registadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([faturaId])
+  @@index([dataPagamento])
+}
+
+model HorarioProfissional {
+  id           Int      @id @default(autoincrement())
+  diaSemana    Int
+  horaEntrada   String
+  horaSaida     String
+  ativo        Boolean  @default(true)
+  estado       String   @default("ATIVO")
+  observacoes  String?
+
+  userId Int
+  user   User @relation("HorarioProfissionalUser", fields: [userId], references: [id])
+
+  criadoPorId Int?
+  criadoPor   User? @relation("HorariosProfissionaisCriados", fields: [criadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([diaSemana, ativo])
+}
+
+model InternamentoObservacao {
+  id           Int      @id @default(autoincrement())
+  data         DateTime @default(now())
+  sinaisVitais String?
+  alimentacao  String?
+  medicacao    String?
+  observacoes  String
+
+  internamentoId Int
+  internamento   Internamento @relation(fields: [internamentoId], references: [id])
+
+  registadoPorId Int?
+  registadoPor   User? @relation("ObservacoesInternamento", fields: [registadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([internamentoId])
+  @@index([registadoPorId])
+}
+
+model FinancialTransaction {
+  id        Int      @id @default(autoincrement())
+  tipo      String
+  categoria String
+  valor     Float
+  descricao String?
+  createdAt DateTime @default(now())
+
+  @@index([tipo])
+  @@index([categoria])
+  @@index([createdAt])
+}
+
+model Vacina {
+  id            Int       @id @default(autoincrement())
+  nome          String
+  lote          String?
+  fabricante    String?
+  dataAplicacao DateTime
+  proximaDose   DateTime?
+  observacoes   String?
+
+  animalId Int
+  animal   Animal @relation(fields: [animalId], references: [id])
+
+  aplicadoPorId Int?
+  aplicadoPor   User? @relation("VacinasAplicadas", fields: [aplicadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([animalId])
+  @@index([proximaDose])
+}
+
+model StockItem {
+  id            Int              @id @default(autoincrement())
+  nome          String
+  categoria     String
+  unidade       String
+  quantidade    Float            @default(0)
+  quantidadeMin Float            @default(0)
+  lote          String?
+  validade      DateTime?
+  localizacao   String?
+  fornecedor    String?
+  notas         String?
+
+  movimentos StockMovimento[]
+  consumos   LabConsumo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoria])
+}
+
+model StockMovimento {
+  id         Int      @id @default(autoincrement())
+  tipo       String
+  quantidade Float
+  motivo     String?
+
+  itemId Int
+  item   StockItem @relation(fields: [itemId], references: [id])
+
+  registadoPorId Int?
+  registadoPor   User? @relation("StockMovimentos", fields: [registadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([itemId])
+  @@index([tipo])
+}
+
+model ServicoCatalogo {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  categoria String
+  preco     Float
+  descricao String?
+  ativo     Boolean @default(true)
+
+  linhas FaturaLinha[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoria])
+  @@index([ativo])
+}
+
+model FaturaLinha {
+  id         Int     @id @default(autoincrement())
+  descricao  String
+  quantidade Float   @default(1)
+  precoUnit  Float
+  total      Float
+
+  faturaId Int
+  fatura   Fatura @relation(fields: [faturaId], references: [id])
+
+  servicoId Int?
+  servico   ServicoCatalogo? @relation(fields: [servicoId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([faturaId])
+}

@@ -1,0 +1,229 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(90, 90, 64, 0.08), transparent 28rem),
+    #f5f5f4;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d6d3d1 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.app-shell {
+  background:
+    linear-gradient(135deg, rgba(90, 90, 64, 0.08), transparent 24rem),
+    #f5f5f4;
+}
+
+.app-content > div {
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(124, 127, 79, 0.18), transparent 28rem),
+    #0f172a;
+}
+
+.dark * {
+  scrollbar-color: #475569 transparent;
+}
+
+.dark *::-webkit-scrollbar-thumb {
+  background: #475569;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.dark .app-shell {
+  background:
+    linear-gradient(135deg, rgba(124, 127, 79, 0.16), transparent 24rem),
+    #0f172a !important;
+}
+
+.dark .bg-\[\#F5F5F4\],
+.dark .bg-\[\#FAFAF9\],
+.dark .bg-stone-50 {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-white,
+.dark .bg-white\/95 {
+  background-color: #111827 !important;
+}
+
+.dark .bg-\[\#E7E5E4\],
+.dark .bg-\[\#F3F4F6\],
+.dark .bg-\[\#F9FAFB\],
+.dark .bg-stone-100,
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+  background-color: #1f2937 !important;
+}
+
+.dark .bg-\[\#5A5A40\] {
+  background-color: #7c7f4f !important;
+}
+
+.dark .hover\:bg-\[\#F5F5F4\]:hover,
+.dark .hover\:bg-\[\#FAFAF9\]:hover,
+.dark .hover\:bg-\[\#E7E5E4\]:hover,
+.dark .hover\:bg-\[\#FEF2F2\]:hover,
+.dark .hover\:bg-white:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover,
+.dark .hover\:bg-stone-100:hover,
+.dark .hover\:bg-stone-50:hover {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .hover\:bg-blue-50:hover,
+.dark .hover\:bg-blue-100:hover {
+  background-color: rgba(37, 99, 235, 0.28) !important;
+  color: #bfdbfe !important;
+}
+
+.dark .hover\:bg-green-50:hover,
+.dark .hover\:bg-green-100:hover {
+  background-color: rgba(22, 163, 74, 0.25) !important;
+  color: #bbf7d0 !important;
+}
+
+.dark .hover\:bg-orange-50:hover,
+.dark .hover\:bg-orange-100:hover,
+.dark .hover\:bg-amber-50:hover,
+.dark .hover\:bg-amber-100:hover {
+  background-color: rgba(217, 119, 6, 0.25) !important;
+  color: #fed7aa !important;
+}
+
+.dark .border-\[\#E7E5E4\],
+.dark .border-\[\#D6D3D1\],
+.dark .border-white,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-stone-200 {
+  border-color: #334155 !important;
+}
+
+.dark .ring-white {
+  --tw-ring-color: #111827 !important;
+}
+
+.dark .text-\[\#1C1917\],
+.dark .text-\[\#292524\],
+.dark .text-gray-900,
+.dark .text-stone-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-\[\#44403C\],
+.dark .text-\[\#57534E\],
+.dark .hover\:text-\[\#1C1917\]:hover,
+.dark .hover\:text-\[\#57534E\]:hover,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-stone-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .group:hover .group-hover\:text-\[\#57534E\],
+.dark .group:hover .group-hover\:text-\[\#1C1917\] {
+  color: #cbd5e1 !important;
+}
+
+.dark tr:hover,
+.dark li:hover {
+  color: #f8fafc;
+}
+
+.dark .text-\[\#78716C\],
+.dark .text-\[\#A8A29E\],
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-stone-500,
+.dark .text-stone-600 {
+  color: #94a3b8 !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a8a29e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  padding-right: 2.5rem !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+.dark option {
+  background-color: #111827;
+  color: #f8fafc;
+}
+
+.dark .shadow-sm,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35) !important;
+}
+
+.dark .bg-green-50,
+.dark .bg-green-100 {
+  background-color: rgba(22, 101, 52, 0.25) !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-blue-100 {
+  background-color: rgba(30, 64, 175, 0.25) !important;
+}
+
+.dark .bg-orange-50,
+.dark .bg-orange-100,
+.dark .bg-amber-50,
+.dark .bg-amber-100 {
+  background-color: rgba(180, 83, 9, 0.25) !important;
+}
+
+.dark .bg-red-50,
+.dark .bg-red-100,
+.dark .hover\:bg-red-50:hover {
+  background-color: rgba(185, 28, 28, 0.25) !important;
+}

@@ -1,0 +1,23 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+build/
+
+# Ambiente Python (não utilizado neste projeto)
+.venv/
+
+# Variáveis de ambiente (nunca commitar ficheiros .env reais)
+.env
+.env.local
+.env.*.local
+
+# Ficheiros temporários e do sistema
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+
+# Ferramentas internas
+.claude/
